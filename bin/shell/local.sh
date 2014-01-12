@@ -1,11 +1,14 @@
 USER_FILE=$SHELL_ROOT/user.sh
-source $USER_FILE
+if [ -f $USER_FILE ] ; then
+  source $USER_FILE
+fi
 
 function uninit_local()
 {
   echo "#user defined" > $USER_FILE
   echo "CUR_PROJECT_ROOT=" >> $USER_FILE
   CUR_PROJECT_ROOT=
+  ANDROID_ROOT=
 }
 
 function init_local()
@@ -31,8 +34,14 @@ function init_local()
   android_xml_cur=`ls -l $ANDROID_ROOT/.repo/manifest.xml \
     | awk '{print $11}'`
 
-  dump
-  write_local_to_user
+  if [ $android_xml_cur ] ; then
+    dump
+    write_local_to_user
+  else
+    echo "$cc_path is not seam tobe a chipcode or android path!"
+    echo "choose again..."
+    uninit_local
+  fi
 }
 
 function write_local_to_user()

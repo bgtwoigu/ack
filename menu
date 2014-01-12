@@ -4,13 +4,15 @@ GIT_MENU_FILE=$SHELL_ROOT/git/gitmenu.sh
 
 function main_menu()
 {
-  echo "============== Android Code Kit ================================="
-  echo "0.choose code path [$CUR_PROJECT_ROOT]"
-  echo "1.upgrade qcom baseline"
-  echo "2.get languages"
+  echo "==================== Android Code Kit ===================="
+  echo "0.choose chipcode path [$CUR_PROJECT_ROOT]"
+  if [ $CUR_PROJECT_ROOT ] ; then
+    echo "1.upgrade qcom baseline"
+    echo "2.get languages"
+  fi
   echo -n ":"
   local mtodo
-  read mtodo 
+  read mtodo
 
   case $mtodo in
     0) echo "NOTE: this will change the chipcode path!"
@@ -32,8 +34,12 @@ function reload()
 
 function menu()
 {
-  source $LOCAL_FILE
-  main_menu
+  if [ -e menu ] ; then
+    source $LOCAL_FILE
+    main_menu
+  else
+    echo "[ERROR] pls run menu.sh in the SAME folder as where it was installed."
+  fi
 }
 
 menu
