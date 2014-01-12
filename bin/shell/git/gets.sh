@@ -24,10 +24,10 @@ function get_manifest_xml()
   cp $MANIFEST_DIR/default_$android_xml /tmp/
 
   $MGIT checkout default
-  vimdiff /tmp/default_$android_xml $MANIFEST_DIR/gerrit/$android_xml_dest
+  vimdiff /tmp/default_$android_xml $MANIFEST_DIR/gerrit/$android_xml_cur
 
 
-  echo -n "Is $android_xml_dest ok?(y/n)"
+  echo -n "Is $android_xml_cur ok?(y/n)"
   local answer_yn
   read answer_yn
 
@@ -35,15 +35,15 @@ function get_manifest_xml()
   then
     commit_push_xml
   else
-    echo "pls manual modify $android_xml_dest"
+    echo "pls manual modify $android_xml_cur"
     echo "when ok, run commit_push_xml"
   fi
 }
 
 function commit_push_xml()
 {
-  echo "1.rename $android_xml_dest"
-  echo "2.commit&push $android_xml_dest"
+  echo "1.rename $android_xml_cur"
+  echo "2.commit&push $android_xml_cur"
   echo -n "choose:"
   local answer
   local new_name
@@ -53,21 +53,20 @@ function commit_push_xml()
     echo -n "input new xml name(end whit .xml):"
     read new_name
     if [ "$new_name" ] ; then
-      cp $MANIFEST_DIR/gerrit/$android_xml_dest $MANIFEST_DIR/gerrit/$new_name
+      cp $MANIFEST_DIR/gerrit/$android_xml_cur $MANIFEST_DIR/gerrit/$new_name
       answer=2
     fi
   fi
   if [ "$answer" = "2" ] ; then
     if [ "$new_name" ] ; then
       $MGIT add gerrit/$new_name
-      $MGIT checkout gerrit/$android_xml_dest
+      $MGIT checkout gerrit/$android_xml_cur
       $MGIT commit -m "add $new_name"
     else
-      $MGIT add gerrit/$android_xml_dest
-      $MGIT commit -m "update $android_xml_dest"
+      $MGIT add gerrit/$android_xml_cur
+      $MGIT commit -m "update $android_xml_cur"
     fi
     $MGIT push origin HEAD:refs/for/goso
   fi
 }
 
-get_manifest_xml
