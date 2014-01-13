@@ -1,6 +1,7 @@
-export SHELL_ROOT=bin/shell
+export SHELL_ROOT=`pwd`/bin/shell
 LOCAL_FILE=$SHELL_ROOT/local.sh
 GIT_MENU_FILE=$SHELL_ROOT/git/gitmenu.sh
+LANG_MENU_FILE=$SHELL_ROOT/lang/langmenu.sh
 
 function main_menu()
 {
@@ -22,6 +23,7 @@ function main_menu()
       source $GIT_MENU_FILE
       ;;
     2) echo "init lang..."
+      source $LANG_MENU_FILE
       ;;
   esac
 }
