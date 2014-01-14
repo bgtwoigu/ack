@@ -1,0 +1,3 @@
+[submodule "bin/red/AltXML"]
+	path = bin/red/AltXML
+	url = https://github.com/rgchris/AltXML.git

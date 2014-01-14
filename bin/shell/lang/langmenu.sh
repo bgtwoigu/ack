@@ -12,6 +12,8 @@ function lang_menu()
   if [ -n $LANG_WORK_DIR ] ; then  echo " --> done!"; fi
   echo "2.copy en strings.xml [$LANG_WORK_DIR/en]"
   echo "3.copy $LANG_CODE strings.xml [$LANG_WORK_DIR/$LANG_CODE]"
+  echo "4."
+  echo "5."
   echo "c.clean work dirs"
   echo "q.quit"
 
