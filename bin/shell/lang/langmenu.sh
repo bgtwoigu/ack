@@ -1,6 +1,7 @@
 export LANG_ROOT=$SHELL_ROOT/lang
 LANG_VARS_FILE=$LANG_ROOT/vars.sh
 LANG_GETS_FILE=$LANG_ROOT/gets.sh
+USE_TIME=
 
 function lang_menu()
 {
@@ -12,9 +13,10 @@ function lang_menu()
   if [ -n $LANG_WORK_DIR ] ; then  echo " --> done!"; fi
   echo "2.copy en strings.xml [$LANG_WORK_DIR/en]"
   echo "3.copy $LANG_CODE strings.xml [$LANG_WORK_DIR/$LANG_CODE]"
-  echo "4."
-  echo "5."
+  echo "4.transform strings.xml to strings.cvs"
+  echo "5.transform strings.xml to strings.cvs"
   echo "c.clean work dirs"
+  echo "t.use time [$USE_TIME]"
   echo "q.quit"
 
   echo -n ":"
@@ -31,16 +33,27 @@ function lang_menu()
       lang_reload
       ;;
     2) echo "find values ..."
-      lang_copy_strings
+      $USE_TIME lang_copy_strings
       lang_load
       ;;
     3) echo "find values-$LANG_CODE ..."
-      lang_copy_strings $LANG_CODE
+      $USE_TIME lang_copy_strings $LANG_CODE
+      lang_load
+      ;;
+    4) echo "transform strings.xml under $LANG_WORK_DIR/en ..."
+      $USE_TIME lang_strings_xml2cvs en
+      lang_load
+      ;;
+    5) echo "transform strings.xml under $LANG_WORK_DIR/$LANG_CODE ..."
+      $USE_TIME lang_strings_xml2cvs $LANG_CODE
       lang_load
       ;;
     c) echo "will remove all work dirs ..."
       lang_rm_work_dir
       lang_reload
+      ;;
+    t) echo "use time on/off"
+      lang_switch_time
       ;;
     q) echo "Bye!"
       ;;
@@ -49,6 +62,23 @@ function lang_menu()
       ;;
   esac
 
+}
+
+function lang_switch_time()
+{
+  local tstate=
+  if [ "$USE_TIME" = "time" ] ; then
+    tstate='on'
+  fi
+  if [ "$USE_TIME" = "" ] ; then
+    tstate='off'
+  fi
+  if [ "$tstate" = "on" ] ; then
+    USE_TIME=
+  fi
+  if [ "$tstate" = "off" ] ; then
+    USE_TIME=time
+  fi
 }
 
 function lang_reload()

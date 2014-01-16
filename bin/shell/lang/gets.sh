@@ -45,3 +45,19 @@ function lang_rm_work_dir()
   LANG_WORK_DIR=
   rm -rf $LANG_ROOT/2014*
 }
+
+function lang_strings_xml2cvs()
+{
+  local R3=$RED_ROOT/r3
+  local xml2cvs=$RED_ROOT/xml2cvs.r
+  local lfname=$LANG_WORK_DIR/$1/vflist
+
+  cat $lfname | while read line
+  do
+    local lfsrc=$LANG_WORK_DIR/$1/$line/strings.xml
+    if [ -f $lfsrc ] ; then
+      $R3 $xml2cvs $lfsrc
+    fi
+  done
+
+}

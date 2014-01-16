@@ -1,4 +1,5 @@
 export SHELL_ROOT=`pwd`/bin/shell
+export RED_ROOT=`pwd`/bin/red
 LOCAL_FILE=$SHELL_ROOT/local.sh
 GIT_MENU_FILE=$SHELL_ROOT/git/gitmenu.sh
 LANG_MENU_FILE=$SHELL_ROOT/lang/langmenu.sh
