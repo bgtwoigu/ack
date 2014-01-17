@@ -1,11 +1,11 @@
 REBOL [
-  title: "transform strings.xml to strings.cvs"
+  title: "transform strings.xml to strings.csv"
   version: 1.0.1
   ;needs: [ altxml 0.4.0 ]
 ]
 
-xml2cvs: func [
-  "transform android strings.xml to cvs"
+xml2csv: func [
+  "transform android strings.xml to csv"
 ][
   print [ "transform" system/options/args ]
   myxml: load-xml/dom to-file system/options/args
@@ -17,9 +17,9 @@ xml2cvs: func [
     ]
   ]
   newfile: copy system/options/args
-  newfile: replace to-string newfile ".xml" ".cvs"
+  newfile: replace to-string newfile ".xml" ".csv"
   write to-file newfile strs
 ]
 
 import %r3xml.r
-xml2cvs
+xml2csv

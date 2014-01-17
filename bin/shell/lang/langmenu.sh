@@ -13,8 +13,11 @@ function lang_menu()
   if [ -n $LANG_WORK_DIR ] ; then  echo " --> done!"; fi
   echo "2.copy en strings.xml [$LANG_WORK_DIR/en]"
   echo "3.copy $LANG_CODE strings.xml [$LANG_WORK_DIR/$LANG_CODE]"
-  echo "4.transform strings.xml to strings.cvs"
-  echo "5.transform strings.xml to strings.cvs"
+  echo "4.transform strings.xml to strings.csv [en]"
+  echo "5.transform strings.xml to strings.csv [$LANG_CODE]"
+  echo "6.gen diff [en-->$LANG_CODE]"
+  echo "7.remove unused module"
+  echo "8.merge single file"
   echo "c.clean work dirs"
   echo "t.use time [$USE_TIME]"
   echo "q.quit"
@@ -41,11 +44,23 @@ function lang_menu()
       lang_load
       ;;
     4) echo "transform strings.xml under $LANG_WORK_DIR/en ..."
-      $USE_TIME lang_strings_xml2cvs en
+      $USE_TIME lang_strings_xml2csv en
       lang_load
       ;;
     5) echo "transform strings.xml under $LANG_WORK_DIR/$LANG_CODE ..."
-      $USE_TIME lang_strings_xml2cvs $LANG_CODE
+      $USE_TIME lang_strings_xml2csv $LANG_CODE
+      lang_load
+      ;;
+    6) echo "gen diff in $LANG_WORK_DIR/en-$LANG_CODE"
+      lang_gen_diff $LANG_CODE
+      lang_load
+      ;;
+    7) echo "remove unused in $LANG_WORK_DIR/en-$LANG_CODE"
+      lang_clean $LANG_CODE
+      lang_load
+      ;;
+    8) echo "merge .csv in $LANG_WORK_DIR/en-$LANG_CODE"
+      lang_merge $LANG_CODE
       lang_load
       ;;
     c) echo "will remove all work dirs ..."
@@ -54,6 +69,7 @@ function lang_menu()
       ;;
     t) echo "use time on/off"
       lang_switch_time
+      lang_load
       ;;
     q) echo "Bye!"
       ;;
