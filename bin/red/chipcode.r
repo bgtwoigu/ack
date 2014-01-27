@@ -9,26 +9,26 @@ REBOL [
   exports: [ ]
 ]
 
-repo: [
- "1" {ssh://192.168.180.185:29418/qmss19-8x10.git}     qrd8x10
- "2" {ssh://192.168.180.185:29418/qmss16.git}          qrd8x26
- "3" {ssh://192.168.180.185:29418/qmss11-8926.git}     qrd8926
- "4" {ssh://192.168.180.185:29418/amss20-8x74.git}     qct8x74
- "5" {ssh://192.168.180.185:29418/amss201-8x74.git}  qct8x74kk
-]
-
 data-file: %chipcode.dat
 
-list: try/except [ load data-file ] [ [] ]
+repo: []
+list: []
+cur: none
 
-cur: attempt [ first list ]
-
-load-data: does [
-  list: try/except [ load data-file ] [ [] ]
+init: func [
+  /local dat
+] [
+  try [
+    dat: load data-file
+    repo: first dat
+    list: second dat
+    cur: last dat
+    if not cur [ attempt [ first list ]]
+  ]
 ]
 
 save-data: does [
-  save data-file list
+  save data-file reduce [ repo list cur ]
 ]
 
 ls: func [
@@ -44,7 +44,7 @@ ls: func [
   ] [
     foreach path list [
       i: i + 1
-      print [ i "." path]
+      print reduce [ i "." path]
     ]
   ]
 ]
@@ -71,6 +71,7 @@ choose: func [ /local ans] [
   ls
   ans: ask "please choose one:"
   cur: pick list to-integer ans
+  save-data
   print [ "currunt chipcode:" cur ]
 ]
 
@@ -81,6 +82,8 @@ clone: func [
   src: ask "select which one you want to clone:"
   dest: ask "input where you want to clone:"
   call/wait reform [ "git clone" select repo src dest ]
+  append list append to-file dest {/}
+  save-data
 ]
 
 get-remote: func [] [
@@ -133,7 +136,16 @@ get-manifest: func [
   vv
 ]
 
-info: func [] [
+info: func [
+  /local vers br
+] [
+  vers: get-manifest
+  br: get-branches
+  print [ "local:" cur ]
+  print [ "remote:" get-remote ]
+  print [ "chipcode ver:" vers/1 vers/2 ]
+  print [ "LA ver:" vers/4 ]
+  print [ "branch:" br/1 ]
 ]
 
 ;;;--------------------------------------------------------
