@@ -26,10 +26,10 @@ git-valid: func [
 ] [
   prin [ "checking " cur "... " ]
   if not git-exists cur [
-    print "Not Exits"
+    print "Not a git repository"
     return false
   ]
-  either select repo git-remote cur [
+  either find repo git-remote cur [
     print "OK!"
     true
   ] [

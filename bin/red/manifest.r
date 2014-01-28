@@ -9,10 +9,22 @@ REBOL [
   exports: [ ]
 ]
 
-qct-remote: {ssh://192.168.180.185:29418/qct/platform/manifest.git}
+;;;--------------------------------------------------------
+data-file: %manifest.dat
+
+qct-remote: none
 qct-local: %/tmp/qct-manifest/
 
-init: func [] [
+init: func [
+  /local dat
+] [
+  try [
+    dat: load data-file
+    qct-remote: first dat
+  ]
+]
+
+update: func [] [
   either git-valid reduce [ qct-remote ] qct-local [
     git-pull qct-local
   ] [
@@ -21,16 +33,39 @@ init: func [] [
 ]
 
 get-xml: func [
+  /local xml
 ] [
-  do Build/Lable/LA
+  xml: first reduce Build/Lable/LA
+  clear find/last xml #"-"
+  append xml ".xml"
 ]
 
-clone: func [
+examine: func [
 ] [
+  prin [ "checking " get-xml "... " ]
+  if not exists? append copy qct-local get-xml [
+    print "Not found"
+    return false
+  ]
+  print "OK!"
+  true
+]
+
+info: func [
+] [
+  print [ {manifest.xml -> } get-xml ]
+]
+
+gen: func [
+] [
+
 ]
 
 ;;;--------------------------------------------------------
 menutree: [
+  {i} [ info ] {show current info}
+  {u} [ update ] {update manifest}
+  {e} [ examine ] {examine current manifest}
   {?} [ cmd-show menutree ] {help}
   {q} [ print "back TOP" break ] {back TOP}
 ]

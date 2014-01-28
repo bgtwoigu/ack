@@ -11,4 +11,4 @@ REBOL [
 cc: import %chipcode.r
 cc/init
 mx: import %manifest.r
-
+mx/init
