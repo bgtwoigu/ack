@@ -5,10 +5,19 @@ REBOL [
   version: 1.0.0
   date: 24-Jan-2014
   file: %chipcode.r
-  needs: [ %menu-util.r ]
-  exports: [ ]
+  needs: [ %menu-util.r %git-util.r ]
+  exports: [ Build ]
 ]
 
+;;;--------------------------------------------------------
+Build: [
+  Product [ first get-manifest ]
+  Distribution [ second get-manifest ]
+  Lable [
+    LA [ last get-manifest ]
+  ]
+]
+;;;--------------------------------------------------------
 data-file: %chipcode.dat
 
 repo: []
@@ -72,7 +81,7 @@ choose: func [ /local ans] [
   ans: ask "please choose one:"
   cur: pick list to-integer ans
   save-data
-  print [ "currunt chipcode:" cur ]
+  print [ "current chipcode:" cur ]
 ]
 
 clone: func [
@@ -81,43 +90,14 @@ clone: func [
   ls/remote
   src: ask "select which one you want to clone:"
   dest: ask "input where you want to clone:"
-  call/wait reform [ "git clone" select repo src dest ]
+  git-clone select repo src dest
   append list append to-file dest {/}
   save-data
 ]
 
-get-remote: func [] [
-  trim second
-    split trim
-      select
-        read/lines rejoin [ cur ".git/config" ]
-        {[remote "origin"]}
-      #"="
-]
-
-get-branches: func [
-  /local heads
-] [
-  heads: make block! 2
-  foreach f read rejoin [ cur {.git/refs/heads/} ] [
-    append heads to-string f
-    append heads first read/lines rejoin [ cur {.git/refs/heads/} f ]
-  ]
-]
-
 examine: func [
-  {check git remote in repo,
-   check current branch not in master, in correct branch version
-  }
 ] [
-  prin [ "checking " cur "... " ]
-  either select repo get-remote [
-    print "OK!"
-    true
-  ] [
-    print "FAIL!"
-    none
-  ]
+  git-valid repo cur
 ]
 
 get-manifest: func [
@@ -140,9 +120,9 @@ info: func [
   /local vers br
 ] [
   vers: get-manifest
-  br: get-branches
+  br: git-branch cur
   print [ "local:" cur ]
-  print [ "remote:" get-remote ]
+  print [ "remote:" git-remote cur]
   print [ "chipcode ver:" vers/1 vers/2 ]
   print [ "LA ver:" vers/4 ]
   print [ "branch:" br/1 ]
