@@ -6,8 +6,8 @@ REBOL [
   date: 28-Jan-2014
   file: %git.r
   exports: [
-    git-clone git-remote git-branch
-    git-pull
+    gitcmd git-clone git-remote git-branch
+    git-pull git-tag
   ]
 ]
 
@@ -31,25 +31,68 @@ git-remote: func [
 
 git-branch: func [
   cur "current code path"
+  /remote
+  remote-name
   /local heads
 ] [
-  heads: make block! 2
+  heads: copy/deep [ [] [] [] ]
   foreach f read rejoin [ cur {.git/refs/heads/} ] [
-    append heads to-string f
-    append heads first read/lines rejoin [ cur {.git/refs/heads/} f ]
+    append heads/1 to-string f
+    append heads/1 first read/lines rejoin [ cur {.git/refs/heads/} f ]
+  ]
+
+  foreach f read rejoin [ cur {.git/refs/remotes/} remote-name {/} ] [
+    append heads/2 to-string f
+    append heads/2
+      first read/lines rejoin [ cur {.git/refs/remotes/} remote-name {/} f ]
+  ]
+
+  if not select heads/2 "master" [
+    foreach line read/lines rejoin [ cur {.git/packed-refs} ] [
+      if find line
+              trim second split select heads/2 "HEAD" #":" [
+        append heads/2 fourth split line #"/"
+        append heads/2 first split line #" "
+      ]
+    ]
+  ]
+
+  append heads/3
+    third split first read/lines rejoin [ cur {.git/HEAD} ] #"/"
+
+  heads
+]
+
+git-tag: func [
+  cur "current code path"
+  /local tags
+] [
+  tags: make block! 8
+  foreach f read rejoin [ cur {.git/refs/tags/} ] [
+    append tags to-string f
+    ;append tags first read/lines rejoin [ cur {.git/refs/heads/} f ]
   ]
 ]
 
 gitcmd: func [
   cur "current code path"
   cmd
+  /bare "no --work-tree"
+  /debug "only print cmd"
+  /local mycmd
 ] [
-  call/wait reform [
-    rejoin [
-    {git --git-dir=} to-string cur {.git}
-    { --work-tree=} to-string cur
+  either debug [
+    mycmd: :print
+  ] [
+    mycmd: :call
+  ]
+
+  mycmd reform [
+    rejoin [ {git --git-dir=} to-string cur
+      either find cur ".git" [] [ ".git" ]
     ]
-    cmd
+    either bare [] [ rejoin [ { --work-tree=} to-string cur ]]
+    reform cmd
   ]
 ]
 

@@ -16,6 +16,7 @@ Build: [
   Lable [
     LA [ last get-manifest ]
   ]
+  Local [ cur ]
 ]
 ;;;--------------------------------------------------------
 data-file: %chipcode.dat
@@ -58,6 +59,26 @@ ls: func [
   ]
 ]
 
+update: func [
+  /remote "update remote repositories"
+  /local i
+] [
+  i: 0
+  either remote [
+    foreach [n v k] repo [
+      i: i + 1
+      print [ i "." v "updating ..." ]
+      gitcmd/bare v "fetch"
+    ]
+  ] [
+    foreach path list [
+      i: i + 1
+      print reduce [ i "." path "updating ..." ]
+      gitcmd path "fetch"
+    ]
+  ]
+]
+
 search: func [
   /home "search under home"
   /path "search under assigned path"
@@ -76,12 +97,41 @@ add: func [ /local path ] [
   save-data
 ]
 
-choose: func [ /local ans] [
+choose: func [
+  /local ans brs i
+] [
   ls
   ans: ask "please choose one:"
   cur: pick list to-integer ans
   save-data
   print [ "current chipcode:" cur ]
+
+  brs: git-branch/remote cur "origin"
+  i: 0
+  print [ "local branches are:" ]
+  foreach [b sha] brs/1 [
+    i: i + 1
+    print [ i "." b "->" sha ]
+  ]
+  print [ "remote branches are:" ]
+  foreach [b sha] brs/2 [
+    i: i + 1
+    print [ i "." b "->" sha ]
+  ]
+
+  print [ "current branch:" brs/3 ]
+
+  if find brs/3 "master" [
+    ans: to-integer ask "change branch:"
+    if (ans > 0) & (ans <= ((length? brs/1) / 2)) [
+      gitcmd cur [ "checkout" brs/1/(ans * 2 - 1) ]
+    ]
+    ans: ans - ((length? brs/1) / 2)
+    if (ans > 0) & (ans <= ((length? brs/2) / 2)) [
+      gitcmd cur [ "checkout -b" brs/2/(ans * 2 - 1)
+                  rejoin [ "origin/" brs/2/(ans * 2 - 1)] ]
+    ]
+  ]
 ]
 
 clone: func [
@@ -120,12 +170,12 @@ info: func [
   /local vers br
 ] [
   vers: get-manifest
-  br: git-branch cur
+  br: git-branch/remote cur "origin"
   print [ "local:" cur ]
   print [ "remote:" git-remote cur]
   print [ "chipcode ver:" vers/1 vers/2 ]
   print [ "LA ver:" vers/4 ]
-  print [ "branch:" br/1 ]
+  print [ "branch:" br ]
 ]
 
 ;;;--------------------------------------------------------
@@ -133,6 +183,9 @@ menutree: [
   {i} [ if examine [ info ]] {show current info}
   {c} [ clone ] {clone a new chipcode}
   {s} [ choose ] {choose one to use}
+  {l} [ ls ls/remote ] {list both local and remote}
+  {u} [ update ] {update local}
+  {r} [ update/remote ] {update remote}
   {a} [ add ] {add one new local path}
   {e} [ examine ] {examine current code}
   {?} [ cmd-show menutree ] {help}

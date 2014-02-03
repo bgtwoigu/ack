@@ -5,7 +5,7 @@ REBOL [
   version: 1.0.0
   date: 26-Jan-2014
   file: %manifest.r
-  needs: [ %menu-util.r %git-util.r ]
+  needs: [ %menu-util.r %git-util.r %repo.r ]
   exports: [ ]
 ]
 
@@ -13,6 +13,7 @@ REBOL [
 data-file: %manifest.dat
 
 qct-remote: none
+cur-remote: none
 qct-local: %/tmp/qct-manifest/
 
 init: func [
@@ -21,10 +22,16 @@ init: func [
   try [
     dat: load data-file
     qct-remote: first dat
+    cur-remote: second dat
   ]
 ]
 
-update: func [] [
+update: func [
+  /remote "update remote repositories"
+] [
+  if remote [
+    gitcmd/bare qct-remote "fetch"
+  ]
   either git-valid reduce [ qct-remote ] qct-local [
     git-pull qct-local
   ] [
@@ -56,7 +63,14 @@ info: func [
   print [ {manifest.xml -> } get-xml ]
 ]
 
-gen: func [
+gen-xml: func [
+  /local org
+] [
+  org: get-xml
+  
+]
+
+sync: func [
 ] [
 
 ]
@@ -64,7 +78,8 @@ gen: func [
 ;;;--------------------------------------------------------
 menutree: [
   {i} [ info ] {show current info}
-  {u} [ update ] {update manifest}
+  {u} [ update/remote ] {update manifest both local and remote}
+  {s} [ sync ] {sync android code}
   {e} [ examine ] {examine current manifest}
   {?} [ cmd-show menutree ] {help}
   {q} [ print "back TOP" break ] {back TOP}
