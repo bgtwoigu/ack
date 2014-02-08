@@ -9,6 +9,7 @@ REBOL [
 ]
 
 menutree: [
+  {u} [ gu/menu ] {git url}
   {c} [ cc/menu ] {chipcode}
   {m} [ mx/menu ] {manifest}
   {?} [ cmd-show menutree ] {help}

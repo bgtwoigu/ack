@@ -5,9 +5,11 @@ REBOL [
   version: 1.0.0
   date: 26-Jan-2014
   file: %load.r
-  exports: [ cc mx ]
+  exports: [ ut cc mx ]
 ]
 
+ut: import %url-tree.r
+ut/init
 cc: import %chipcode.r
 cc/init
 mx: import %manifest.r
