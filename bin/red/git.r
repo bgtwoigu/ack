@@ -88,11 +88,13 @@ gitcmd: func [
   ]
 
   mycmd reform [
+    if bare [ {ssh git@gs5 "} ]
     rejoin [ {git --git-dir=} to-string cur
       either find cur ".git" [] [ ".git" ]
     ]
     either bare [] [ rejoin [ { --work-tree=} to-string cur ]]
     reform cmd
+    if bare [ {"} ]
   ]
 ]
 

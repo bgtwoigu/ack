@@ -26,19 +26,24 @@ list: []
 cur: none
 
 init: func [
-  /local dat
+  /local dat obj
 ] [
   try [
     dat: load data-file
-    repo: first dat
-    list: second dat
+    list: first dat
     cur: last dat
     if not cur [ attempt [ first list ]]
+  ]
+
+  dat: URLTREE/words/chipcode
+  foreach d dat [
+    obj: do get in URLTREE d
+    append repo reduce [ d obj/gerrit/url obj/git/url ]
   ]
 ]
 
 save-data: does [
-  save data-file reduce [ repo list cur ]
+  save data-file reduce [ list cur ]
 ]
 
 ls: func [
@@ -47,9 +52,9 @@ ls: func [
 ] [
   i: 0
   either remote [
-    foreach [n v k] repo [
+    foreach [k gerrit git] repo [
       i: i + 1
-      print [ i "." v k ]
+      print [ i "." k gerrit git ]
     ]
   ] [
     foreach path list [
@@ -65,10 +70,10 @@ update: func [
 ] [
   i: 0
   either remote [
-    foreach [n v k] repo [
+    foreach [k gerrit git] repo [
       i: i + 1
-      print [ i "." v "updating ..." ]
-      gitcmd/bare v "fetch"
+      print [ i "." git "updating ..." ]
+      gitcmd/bare git "fetch"
     ]
   ] [
     foreach path list [

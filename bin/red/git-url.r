@@ -17,8 +17,14 @@ base-url: make object! [
   port-id: copy ""
   root: copy ""
   path: copy ""
-  url: func [] [
-    rejoin [ scheme "://" user "@" host port-id root path ]
+  url: func [ /local out ] [
+    out: copy ""
+    append out rejoin [ scheme "://" ]
+    if user <> "" [ append out rejoin [user "@" ]]
+    append out host
+    if port-id <> "" [ append out rejoin [ ":" port-id ]]
+    append out rejoin [ root path ]
+    out
   ]
 ]
 
@@ -70,7 +76,7 @@ make-url: func [
     ]
     if (se == "ssh") and (not port-id) [
       ret: make ret [
-        port-id: ":22"
+        port-id: "22"
       ]
     ]
   ]
@@ -94,9 +100,7 @@ make-url: func [
   ]
   if port-id [
     ret: make ret [
-      port-id: either (first pt) == #":"
-        [ pt ]
-        [ rejoin [ ":" pt ]]
+      port-id: pt
     ]
   ]
   ret
