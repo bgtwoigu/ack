@@ -17,12 +17,26 @@ base-url: make object! [
   port-id: copy ""
   root: copy ""
   path: copy ""
-  url: func [ /local out ] [
+  ssh: func [
+    /local out
+  ] [
     out: copy ""
-    append out rejoin [ scheme "://" ]
+    append out {ssh }
     if user <> "" [ append out rejoin [user "@" ]]
     append out host
-    if port-id <> "" [ append out rejoin [ ":" port-id ]]
+    out
+  ]
+  url: func [
+    /localpath
+    /local out
+  ] [
+    out: copy ""
+    if not localpath [
+      append out rejoin [ scheme "://" ]
+      if user <> "" [ append out rejoin [user "@" ]]
+      append out host
+      if port-id <> "" [ append out rejoin [ ":" port-id ]]
+    ]
     append out rejoin [ root path ]
     out
   ]

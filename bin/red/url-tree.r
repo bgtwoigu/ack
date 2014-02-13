@@ -46,26 +46,28 @@ URLTREE: context [
 data-file: %url-tree.dat
 
 info: func [
+  /local words obj
 ] [
-  print [ {qaep:} URLDAT/qaep/gerrit/url ]
-  print [ {qrd8x26:} URLDAT/qrd8x26/gerrit/url ]
-  print [ {qrd8x26:} URLDAT/qrd8x26/gerrit/url ]
-  print [ {qrd8926:} URLDAT/qrd8926/gerrit/url ]
-  print [ {qct8x74kk:} URLDAT/qct8x74kk/gerrit/url ]
+  words: copy URLTREE/words/android
+  append words URLTREE/words/chipcode
+  foreach v words [
+    obj: do get in URLDAT v
+    print [ to set-word! v obj/gerrit/url ]
+  ]
 ]
 
 init: func [
-  /local dat
+  /local dat blk words
 ] [
   try [
     dat: load data-file
-    URLDAT: make object! [
-      qaep: new dat/qaep
-      qrd8x10: new dat/qrd8x10
-      qrd8x26: new dat/qrd8x26
-      qrd8926: new dat/qrd8926
-      qct8x74kk: new dat/qct8x74kk
+    blk: []
+    words: copy URLTREE/words/android
+    append words URLTREE/words/chipcode
+    foreach v words [
+      append blk reduce [ to-set-word v new select dat v ]
     ]
+    URLDAT: make object! blk
   ]
 ]
 ;;;--------------------------------------------------------

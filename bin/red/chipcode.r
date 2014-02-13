@@ -21,12 +21,11 @@ Build: [
 ;;;--------------------------------------------------------
 data-file: %chipcode.dat
 
-repo: []
 list: []
 cur: none
 
 init: func [
-  /local dat obj
+  /local dat
 ] [
   try [
     dat: load data-file
@@ -34,16 +33,33 @@ init: func [
     cur: last dat
     if not cur [ attempt [ first list ]]
   ]
-
-  dat: URLTREE/words/chipcode
-  foreach d dat [
-    obj: do get in URLTREE d
-    append repo reduce [ d obj/gerrit/url obj/git/url ]
-  ]
 ]
 
 save-data: does [
   save data-file reduce [ list cur ]
+]
+
+geturls: func [
+  /chipcode
+  /gerrit
+  /git
+  /localpath
+  /ssh
+  /local dat repo obj
+] [
+  repo: copy []
+  if chipcode [
+    dat: URLTREE/words/chipcode
+    foreach d dat [
+      obj: do get in URLTREE d
+      append repo reduce [ d ]
+      if gerrit [append repo reduce [ obj/gerrit/url ]]
+      if git [append repo reduce [ obj/git/url ]]
+      if localpath [append repo reduce [ obj/git/url/localpath ]]
+      if ssh [append repo reduce [ obj/git/ssh ]]
+    ]
+  ]
+  repo
 ]
 
 ls: func [
@@ -52,9 +68,9 @@ ls: func [
 ] [
   i: 0
   either remote [
-    foreach [k gerrit git] repo [
+    foreach [k v] geturls/chipcode/gerrit [
       i: i + 1
-      print [ i "." k gerrit git ]
+      print [ i "." k v ]
     ]
   ] [
     foreach path list [
@@ -70,10 +86,10 @@ update: func [
 ] [
   i: 0
   either remote [
-    foreach [k gerrit git] repo [
+    foreach [k v ssh] geturls/chipcode/localpath/ssh [
       i: i + 1
-      print [ i "." git "updating ..." ]
-      gitcmd/bare git "fetch"
+      print [ i "." v "updating ..." ]
+      gitcmd/bare/remote v "fetch" ssh
     ]
   ] [
     foreach path list [
@@ -145,14 +161,14 @@ clone: func [
   ls/remote
   src: ask "select which one you want to clone:"
   dest: ask "input where you want to clone:"
-  git-clone select repo src dest
+  git-clone pick geturls/chipcode/gerrit ((to-integer src) * 2) dest
   append list append to-file dest {/}
   save-data
 ]
 
 examine: func [
 ] [
-  git-valid repo cur
+  git-valid geturls/chipcode/gerrit cur
 ]
 
 get-manifest: func [

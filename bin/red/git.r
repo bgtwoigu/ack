@@ -75,8 +75,10 @@ git-tag: func [
 ]
 
 gitcmd: func [
-  cur "current code path"
+  path "current code path"
   cmd
+  /remote "ssh user@host"
+  ssh
   /bare "no --work-tree"
   /debug "only print cmd"
   /local mycmd
@@ -88,13 +90,12 @@ gitcmd: func [
   ]
 
   mycmd reform [
-    if bare [ {ssh git@gs5 "} ]
-    rejoin [ {git --git-dir=} to-string cur
-      either find cur ".git" [] [ ".git" ]
+    either remote [ ssh ] []
+    rejoin [ {git --git-dir=} to-string path
+      either find path ".git" [] [ ".git" ]
     ]
-    either bare [] [ rejoin [ { --work-tree=} to-string cur ]]
+    either bare [] [ rejoin [ { --work-tree=} to-string path ]]
     reform cmd
-    if bare [ {"} ]
   ]
 ]
 
